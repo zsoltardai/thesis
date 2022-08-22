@@ -1,0 +1,15 @@
+version: '3'
+
+services:
+  app:
+    image: e-democracy
+    build: .
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./pages:/app/pages
+      - ./public:/app/public
+      - ./styles:/app/styles
+      - ./components:/app/components
+      - ./lib:/app/lib
+      - ./store:/app/store

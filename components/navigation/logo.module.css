@@ -1,0 +1,18 @@
+.logo {
+    margin: 1rem 0;
+    font-size: 20pt;
+    text-transform: uppercase;
+    font-weight: 600;
+    color: var(--color-text);
+}
+
+.logo:hover {
+    cursor: pointer;
+    filter: brightness(1.2);
+}
+
+@media screen and (max-width: 800px) {
+    .logo {
+        font-size: 16pt;
+    }
+}

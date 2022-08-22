@@ -1,0 +1,36 @@
+.container {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    align-self: center;
+}
+
+.image {
+    display: block;
+    height: auto;
+    width: 300px;
+}
+
+
+.body h1 {
+    margin-bottom: 1rem;
+}
+
+.body p {
+    text-align: justify;
+    word-break: break-all;
+}
+
+@media screen and (max-width: 800px) {
+    .image {
+        width: 100%;
+        height: auto;
+    }
+
+    .container {
+        grid-template-columns: 1fr;
+    }
+
+    .container h1 {
+        text-align: center;
+    }
+}

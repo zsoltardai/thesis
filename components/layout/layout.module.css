@@ -1,0 +1,12 @@
+.main {
+    display: flex;
+    flex-direction: column;
+    padding: 1rem 10vw;
+    min-height: calc(100vh - var(--navbar-size));
+}
+
+@media screen and (max-width: 800px) {
+    .main {
+        padding: 1rem 5vw;
+    }
+}

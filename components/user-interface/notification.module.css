@@ -1,0 +1,27 @@
+.container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 20px;
+}
+
+.title {
+    text-align: left;
+}
+
+.message {
+    justify-self: flex-end;
+    text-align: right;
+}
+
+.success {
+    background-color: var(--color-green) !important;
+}
+
+.error {
+    background-color: var(--color-red) !important;
+}
+
+.pending {
+    background-color: var(--color-primary) !important;
+}

@@ -1,0 +1,29 @@
+.form {
+    width: 40vw;
+    align-self: center;
+}
+
+.form h2 {
+    text-transform: uppercase;
+    font-weight: 700;
+    margin: 0.5rem 0 2rem 0;
+}
+
+.control {
+    display: flex;
+    flex-direction: column;
+    margin: 1rem 0;
+}
+
+.control label {
+    text-transform: uppercase;
+    color: var(--color-text);
+    font-weight: 600;
+}
+
+@media screen and (max-width: 800px) {
+    .form {
+        width: 95vw;
+        padding: 1rem 2.5vw;
+    }
+}

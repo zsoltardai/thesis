@@ -1,0 +1,65 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins&display=swap');
+
+:root {
+  --color-primary: #1E81B0;
+  --color-white: #FFFFFF;
+  --color-black: #000000;
+  --color-red: #B10F2E;
+  --color-green: #8FAD88;
+  --color-light-grey: #f3efef;
+  --border: 1px solid var(--color-primary);
+  --border-radius: 8px;
+  --navbar-size: 80px;
+  --box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+  --color-text: var(--color-black);
+  --background-color: var(--color-white);
+}
+
+* {
+  padding: 0;
+  margin: 0;
+  font-family: 'Poppins', sans-serif;
+  box-sizing: border-box;
+  color: var(--color-text);
+  background: var(--background-color);
+}
+
+a {
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+.dark {
+  --color-text: var(--color-white);
+  --background-color: var(--color-black);
+}
+
+.notification {
+  position: fixed;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  bottom: 0;
+  left: 0;
+  width: 100vw;
+  min-height: 50px;
+  z-index: 10;
+  grid-gap: 10px;
+  background: none;
+  padding: 1rem;
+}
+
+.notification div {
+  background: none;
+}
+
+.notification p {
+  background: none;
+  color: var(--color-white);
+}
+
+@media screen and (max-width: 800px) {
+  .notification {
+    padding: 0.5rem;
+  }
+}
