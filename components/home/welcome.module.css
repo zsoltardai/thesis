@@ -10,10 +10,7 @@
     width: 300px;
 }
 
-
-.body h1 {
-    margin-bottom: 1rem;
-}
+.body h1 { margin-bottom: 1rem; }
 
 .body p {
     text-align: justify;
@@ -26,11 +23,7 @@
         height: auto;
     }
 
-    .container {
-        grid-template-columns: 1fr;
-    }
+    .container { grid-template-columns: 1fr; }
 
-    .container h1 {
-        text-align: center;
-    }
+    .container h1 { text-align: center; }
 }

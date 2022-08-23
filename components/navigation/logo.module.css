@@ -12,7 +12,5 @@
 }
 
 @media screen and (max-width: 800px) {
-    .logo {
-        font-size: 16pt;
-    }
+    .logo { font-size: 16pt; }
 }

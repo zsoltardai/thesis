@@ -2,8 +2,9 @@
     display: grid;
     grid-template-columns: 1fr 1fr;
     grid-gap: 30px;
-    width: 80%;
+    width: 60%;
     align-self: center;
+    padding: 0.5rem 0 3rem 0;
 }
 
 .form {
@@ -14,6 +15,14 @@
 .h2 {
     text-align: center;
     margin: 1rem 0;
+}
+
+.helper {
+    margin: 0.25rem;
+}
+
+.helper ol {
+    margin: 0.5rem 2rem;
 }
 
 @media screen and (max-width: 800px) {

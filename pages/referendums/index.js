@@ -1,6 +1,6 @@
 export default function Referendums() {
-    return (
-        <>
-        </>
-    );
+	return (
+		<>
+		</>
+	);
 }

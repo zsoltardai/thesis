@@ -1,94 +1,143 @@
-const md5 = require('md5');
-import { getSession } from '../../../lib/auth/server';
+import md5 from 'md5';
+import jwt from 'jsonwebtoken';
+import fs from 'fs';
+import path from 'path';
 import { connect, find, update } from '../../../lib/db/mongodb-util';
-const jwt = require('jsonwebtoken');
-import { setCookie } from 'cookies-next';
-const fs = require('fs');
-const path = require('path');
+import { getSession } from '../../../lib/auth/server';
 
-export default async function handler(request, response) {
-    if (request.method === 'PUT') {
+export default async function handler(req, res) {
+	if (req.method === 'PUT') {
 
-        const { email, encryptedEmail } = request.body;
+		const { email, encryptedEmail } = req.body;
 
-        const { token, _ } = await getSession({ req: request, res: response });
+		const { token } = await getSession({
+			req,
+			res
+		});
 
-        if (!token) {
-            response.status(401).json({ message: 'Unauthorized.' });
-            return;
-        }
+		if (!token) {
+			res.status(401)
+				.json({
+					message: 'Unauthorized.'
+				});
+			return;
+		}
 
-        if (!email || !(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/).test(email)) {
-            response.status(400).json({ message: 'The provided e-mail address was invalid!' });
-            return;
-        }
+		const { emailHash } = token;
 
-        if (!encryptedEmail || encryptedEmail.trim() === '') {
-            response.status(400).json({ message: 'The provided encrypted e-mail was invalid!' });
-            return;
-        }
+		if (!email || !(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/)
+			.test(email)) {
+			res.status(400)
+				.json({
+					message: 'The provided e-mail address was invalid!'
+				});
+			return;
+		}
 
-        const emailHash = md5(email);
+		if (!encryptedEmail || encryptedEmail.trim() === '') {
+			res.status(400)
+				.json({
+					message: 'The provided encrypted e-mail was invalid!'
+				});
+			return;
+		}
 
-        let client;
+		const newEmailHash = md5(email);
 
-        try {
-            client = await connect();
-        } catch (error) {
-            response.status(500).json({ message: 'Failed to connect to the database, try again later.' });
-            return;
-        }
+		let client;
 
-        let user;
+		try {
+			client = await connect();
+		} catch (error) {
+			res.status(500)
+				.json({
+					message: 'Failed to connect to the database, try again later.'
+				});
+			return;
+		}
 
-        try {
-            const users = await find(client, 'users', { emailHash: token.emailHash });
-            user = users[0];
-        } catch (error){
-            response.status(500).json({ message: 'Failed to fetch users from the collection.' });
-        }
+		let user;
 
-        if (!user) {
-            response.status(404).json({ message: 'There is no user with the provided e-mail address!' });
-            await client.close();
-            return;
-        }
+		try {
+			const users = await find(client, 'users', {
+				emailHash: emailHash
+			});
+			user = users[0];
+		} catch (error){
+			res.status(500)
+				.json({
+					message: 'Failed to fetch users from the collection.'
+				});
+		}
 
-        user.emailHash = emailHash;
+		if (!user) {
+			res.status(404)
+				.json({
+					message: 'There is no user with the provided e-mail address!'
+				});
+			await client.close();
+			return;
+		}
 
-        user.encryptedEmail = encryptedEmail;
+		user.emailHash = newEmailHash;
 
-        try {
-            await update(client, 'users', user._id, {
-                encryptedEmail: encryptedEmail,
-                emailHash: emailHash
-            });
-        } catch (error) {
-            response.status(500).json({ message: 'Failed to update the e-mail address for the user!' });
-            await client.close();
-            return;
-        }
+		user.encryptedEmail = encryptedEmail;
 
-        const payload = {
-            emailHash: emailHash,
-            identityNumberHash: user.identityNumberHash,
-            iat: Date.now(),
-            exp: Math.floor(Date.now() / 1000) + (60 * 60)
-        };
+		try {
+			await update(client, 'users', user._id, {
+				encryptedEmail: encryptedEmail,
+				emailHash: newEmailHash
+			});
+		} catch (error) {
+			res.status(500)
+				.json({
+					message: 'Failed to update the e-mail address for the user!'
+				});
+			await client.close();
+			return;
+		}
 
-        const privateKey = fs.readFileSync(path.join(process.cwd(), 'key.key'));
+		const payload = {
+			emailHash: newEmailHash,
+			identityNumberHash: user.identityNumberHash,
+			iat: Date.now(),
+			exp: Math.floor(Date.now() / 1000) + (60 * 60)
+		};
 
-        const _token = jwt.sign(payload, privateKey, { algorithm: 'RS256' });
+		const key = fs.readFileSync(path.join(process.cwd(), 'key.key'));
 
-        const cookies = [
-            'auth.token=' + _token + ';',
-            'auth.encrypted-email' + encryptedEmail + ';'
-        ];
+		const _token = await (() => {
+			return new Promise((resolve, _) => {
+				jwt.sign(payload, key, { algorithm: 'RS256' }, (error, token) => {
+					if (!error) resolve(token);
+					resolve(null);
+				});
+			});
+		})();
 
-        response.status(204).setHeader('Set-Cookie', cookies).send();
-        await client.close();
-        return;
-    }
+		if (!_token) {
+			res.status(500)
+				.json({
+					message: 'Failed to sign the token, try again later.'
+				});
+			await client.close();
+			return;
+		}
 
-    response.status(405).json({ message: 'Only PUT requests are allowed!' });
+		const cookies = [
+			'auth.token=' + _token + ';path=/;',
+			'auth.encrypted-email=' + encryptedEmail + ';path=/;'
+		];
+
+		res.status(204)
+			.setHeader('Set-Cookie', cookies)
+			.send();
+		await client.close();
+		return;
+	}
+
+	res.status(405)
+		.json({
+			message: 'Only PUT requests are allowed!'
+		});
 }

@@ -5,17 +5,15 @@ import { NotificationContextProvider } from '../store/notification-context';
 import '../styles/globals.css';
 
 function MyApp({ Component, pageProps }) {
-    return (
-        <NotificationContextProvider>
-            <ModeContextProvider>
-                <SessionContextProvider>
-                    <Layout>
-                        <Component {...pageProps} />
-                    </Layout>
-                </SessionContextProvider>
-            </ModeContextProvider>
-        </NotificationContextProvider>
-    );
+	return (
+		<NotificationContextProvider>
+			<SessionContextProvider>
+				<ModeContextProvider>
+					<Layout><Component {...pageProps} /></Layout>
+				</ModeContextProvider>
+			</SessionContextProvider>
+		</NotificationContextProvider>
+	);
 }
 
 export default MyApp

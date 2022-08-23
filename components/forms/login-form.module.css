@@ -9,17 +9,7 @@
     margin: 0.5rem 0 2rem 0;
 }
 
-.control {
-    display: flex;
-    flex-direction: column;
-    margin: 1rem 0;
-}
-
-.control label {
-    text-transform: uppercase;
-    color: var(--color-text);
-    font-weight: 600;
-}
+.question { margin: 2rem 0; }
 
 @media screen and (max-width: 800px) {
     .form {
