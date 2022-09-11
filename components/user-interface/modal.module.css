@@ -29,9 +29,8 @@
     filter: brightness(1.2);
 }
 
-.modal span {
-    margin: 2rem 0 1rem 0;
-    text-align: center;
+.modal input {
+    padding: 0 0.2rem;
 }
 
 @media screen and (max-width: 800px) {

@@ -1,66 +1,52 @@
-import { connect, find } from '../../../lib/db/mongodb-util';
+import { MongoClient } from 'mongodb';
 import jwt from 'jsonwebtoken';
 import path from 'path'
 import md5 from 'md5'
 import fs from 'fs';
 
 export default async function handler(req, res) {
+	let message; let client; let user;
+
 	if (req.method === 'POST') {
 
 		const { email, passwordHash } = req.body;
 
 		if (!(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/)
 			.test(email)) {
-			res.status(400)
-				.json({
-					message: 'The request did not contain a valid e-mail address!'
-				});
+			message = 'The request did not contain a valid e-mail address!';
+			res.status(400).send(message);
 			return;
 		}
 
 		const emailHash = md5(email);
 
-		let client;
-
 		try {
-			client = await connect();
+			client = await MongoClient.connect(process.env.MONGODB);
 		} catch (error) {
-			res.status(500)
-				.json({
-					message: 'Failed to connect to the database, try again later.'
-				});
+			message = 'Failed to connect to the database, try again later!';
+			res.status(500).send(message);
 			return;
 		}
 
-		let user;
-
 		try {
-			const users = await find(client, 'users', {
-				emailHash: emailHash
-			});
-			user = users[0];
+			user = await client.db().collection('users').findOne({ emailHash });
 		} catch (error) {
-			res.status(500)
-				.json({
-					message: 'Failed to fetch users from the collection, try again later.'
-				});
+			message = 'Failed to fetch users from the collection, try again later!';
+			res.status(500).send(message);
 			await client.close();
 			return;
 		}
 
 		if (!user) {
-			res.status(400)
-				.json({
-					message: 'There is no user with the provided e-mail address!'
-				})
+			message = 'There is no user with the provided e-mail address!';
+			res.status(400).send(message)
 			await client.close();
 			return;
 		}
 
 		if (passwordHash !== user.passwordHash) {
-			res.status(401).json({
-				message: 'Unauthorized.'
-			});
+			message = 'Unauthorized!';
+			res.status(401).send(message);
 			await client.close();
 			return;
 		}
@@ -82,19 +68,6 @@ export default async function handler(req, res) {
 				});
 			});
 		})();
-
-		/*
-		const session = {
-			token: token,
-			user: {
-				encryptedIdentityNumber: user.encryptedIdentityNumber,
-				encryptedEmail: user.encryptedEmail,
-				encryptedFirstName: user.encryptedFirstName,
-				encryptedLastName: user.encryptedLastName,
-				encryptedPrivateKeyPem: user.encryptedPrivateKeyPem
-			}
-		};
-		*/
 		
 		const cookies = [
 			'auth.token=' + token + ';path=/;',
@@ -105,17 +78,12 @@ export default async function handler(req, res) {
 			'auth.encrypted-private-key-pem=' + user.encryptedPrivateKeyPem + ';path=/;'
 		];
 
-		res.status(200)
-			.setHeader('Set-Cookie', cookies)
-			.json({
-				message: 'You successfully logged in!'
-			});
+		message = 'You successfully logged in!';
+		res.status(200).setHeader('Set-Cookie', cookies).send(message);
 		await client.close();
 		return;
 	}
 
-	res.status(405)
-		.json({
-			message: 'Only POST requests are allowed!'
-		});
+	message = 'Only POST requests are allowed!';
+	res.status(405).send(message);
 }

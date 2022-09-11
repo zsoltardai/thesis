@@ -43,8 +43,8 @@ export default function Dropdown() {
 					</Link>
 				</li>
 				<li>
-					<Link href='/profile'>
-						<a className={`${ path === '/profile' ? styles.current : styles.link }`}>
+					<Link href='/account'>
+						<a className={`${ path === '/account' ? styles.current : styles.link }`}>
 							Profile
 						</a>
 					</Link>

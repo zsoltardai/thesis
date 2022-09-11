@@ -1,25 +1,24 @@
-import md5 from 'md5';
+import { getSession } from '../../../../lib/auth/server';
+import { MongoClient } from 'mongodb';
 import jwt from 'jsonwebtoken';
-import fs from 'fs';
 import path from 'path';
-import { connect, find, update } from '../../../lib/db/mongodb-util';
-import { getSession } from '../../../lib/auth/server';
+import md5 from 'md5';
+import fs from 'fs';
 
 export default async function handler(req, res) {
+	let message; let client; let user;
+
 	if (req.method === 'PUT') {
 
 		const { email, encryptedEmail } = req.body;
 
-		const { token } = await getSession({
-			req,
-			res
-		});
+		const { token } = await getSession({ req, res });
+
+		console.log(token);
 
 		if (!token) {
-			res.status(401)
-				.json({
-					message: 'Unauthorized.'
-				});
+			message = 'Unauthorized!';
+			res.status(401).send(message);
 			return;
 		}
 
@@ -27,54 +26,38 @@ export default async function handler(req, res) {
 
 		if (!email || !(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/)
 			.test(email)) {
-			res.status(400)
-				.json({
-					message: 'The provided e-mail address was invalid!'
-				});
+			message = 'The provided e-mail address was invalid!';
+			res.status(400).send(message);
 			return;
 		}
 
 		if (!encryptedEmail || encryptedEmail.trim() === '') {
-			res.status(400)
-				.json({
-					message: 'The provided encrypted e-mail was invalid!'
-				});
+			message = 'The provided encrypted e-mail was invalid!';
+			res.status(400).send(message);
 			return;
 		}
 
 		const newEmailHash = md5(email);
 
-		let client;
-
 		try {
-			client = await connect();
+			client = await MongoClient.connect(process.env.MONGODB);
 		} catch (error) {
-			res.status(500)
-				.json({
-					message: 'Failed to connect to the database, try again later.'
-				});
+			message = 'Failed to connect to the database, try again later!';
+			res.status(500).send(message);
 			return;
 		}
 
-		let user;
-
 		try {
-			const users = await find(client, 'users', {
-				emailHash: emailHash
-			});
-			user = users[0];
+			user = await client.db().collection('users').findOne({ emailHash });
 		} catch (error){
-			res.status(500)
-				.json({
-					message: 'Failed to fetch users from the collection.'
-				});
+			message = 'Failed to fetch users from the collection, try again later!';
+			res.status(500).send(message);
+			return;
 		}
 
 		if (!user) {
-			res.status(404)
-				.json({
-					message: 'There is no user with the provided e-mail address!'
-				});
+			message = 'There is no user with the provided e-mail address!';
+			res.status(404).send(message);
 			await client.close();
 			return;
 		}
@@ -84,15 +67,15 @@ export default async function handler(req, res) {
 		user.encryptedEmail = encryptedEmail;
 
 		try {
-			await update(client, 'users', user._id, {
-				encryptedEmail: encryptedEmail,
+			await client.db().collection('users').updateOne({
+				_id: user._id
+			}, { $set: {
+				encryptedEmail,
 				emailHash: newEmailHash
-			});
+			}});
 		} catch (error) {
-			res.status(500)
-				.json({
-					message: 'Failed to update the e-mail address for the user!'
-				});
+			message = 'Failed to update the e-mail address for the user!';
+			res.status(500).send(message);
 			await client.close();
 			return;
 		}
@@ -116,10 +99,8 @@ export default async function handler(req, res) {
 		})();
 
 		if (!_token) {
-			res.status(500)
-				.json({
-					message: 'Failed to sign the token, try again later.'
-				});
+			message = 'Failed to sign the token, try again later!';
+			res.status(500).send(message);
 			await client.close();
 			return;
 		}
@@ -129,15 +110,11 @@ export default async function handler(req, res) {
 			'auth.encrypted-email=' + encryptedEmail + ';path=/;'
 		];
 
-		res.status(204)
-			.setHeader('Set-Cookie', cookies)
-			.send();
+		res.status(204).setHeader('Set-Cookie', cookies).send();
 		await client.close();
 		return;
 	}
 
-	res.status(405)
-		.json({
-			message: 'Only PUT requests are allowed!'
-		});
+	message = 'Only PUT requests are allowed!';
+	res.status(405).send(message);
 }

@@ -1,0 +1,43 @@
+.form {
+    display: flex;
+    flex-direction: column;
+    padding: 2rem 10%;
+}
+
+.form h2 {
+    margin: 1rem 0;
+    text-transform: uppercase;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-gap: 1rem;
+}
+
+.helper {
+    width: 100%;
+    padding: 0.2rem 10%;
+}
+
+.question {
+}
+
+@media screen and (max-width: 1000px) {
+    .form {
+        padding: 1rem 2vw;
+    }
+
+    .form h2 {
+        align-self: center;
+    }
+
+    .grid {
+        grid-template-columns: 1fr;
+        grid-gap: 0.5rem;
+    }
+
+    .helper {
+        padding: 0.2rem 2vw;
+    }
+}

@@ -1,3 +1,3 @@
 export default function Referendum() {
-    return <></>;
+	return <></>;
 }

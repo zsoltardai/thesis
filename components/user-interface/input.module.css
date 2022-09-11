@@ -1,3 +1,20 @@
+.hasVisibility {
+    display: grid;
+    grid-template-columns: 9fr 1fr;
+    align-items: center;
+    grid-gap: 5px;
+}
+
+.hasNotVisibility input {
+    width: 100%;
+}
+
+.visibility {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
 .input {
     display: grid;
     color: var(--color-text);
@@ -7,7 +24,7 @@
     padding: 0.2rem 0.5rem;
     gap: 10px;
     align-items: center;
-    margin: 1rem 0;
+    margin: 0.25rem 0;
 }
 
 .icon {
@@ -26,4 +43,13 @@
     padding: 0.2rem 1rem;
     font-size: 14pt;
     letter-spacing: 0.05rem;
+}
+
+
+.input input:-webkit-autofill,
+.input input:-webkit-autofill:hover,
+.input input:-webkit-autofill:focus,
+.input input:-webkit-autofill:active{
+    -webkit-box-shadow: 0 0 0 30px var(--background-color) inset !important;
+    -webkit-text-fill-color: var(--color-text) !important;
 }

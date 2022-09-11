@@ -1,0 +1,12 @@
+.container {
+    display: flex;
+    justify-content: right;
+}
+
+.content {
+    letter-spacing: 0.25rem;
+}
+
+.danger {
+    color: var(--color-red);
+}

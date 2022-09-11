@@ -26,6 +26,7 @@ export default function EditProfile({
 		email: null
 	});
 	useEffect(() => {
+		if (!session) return;
 		const _user = session.user;
 		setUser({
 			firstName: rsaKeyPair.decrypt(_user.encryptedFirstName.trim()),
@@ -43,7 +44,7 @@ export default function EditProfile({
 			'Pending',
 			'A request to change your e-mail has been sent.'
 		);
-		const response = await fetch('/api/auth/change-email', { 
+		const response = await fetch('/api/v1/account/email', {
 			method: 'PUT',
 			headers: headers,
 			body: body
@@ -86,7 +87,7 @@ export default function EditProfile({
 			'Pending',
 			'A request to change your password has been sent.'
 		);
-		const response = await fetch('/api/auth/change-password', {
+		const response = await fetch('/api/v1/account/password', {
 			method: 'PUT',
 			headers: headers,
 			body: body
@@ -104,7 +105,7 @@ export default function EditProfile({
 		sessionCtx.update();
 		return true;
 	};
-	if (Object.keys(user).some(key => user[key] === null)) return <LoadingSpinner />;
+	if (session === null || Object.keys(user).some(key => user[key] === null)) return <LoadingSpinner />;
 	return (
 		<div className={styles.container}>
 			<Control>
