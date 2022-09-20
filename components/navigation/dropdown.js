@@ -42,13 +42,19 @@ export default function Dropdown() {
 						</a>
 					</Link>
 				</li>
-				<li>
-					<Link href='/account'>
-						<a className={`${ path === '/account' ? styles.current : styles.link }`}>
-							Profile
-						</a>
-					</Link>
-				</li>
+				{
+					(sessionCtx.session) 
+						&&
+						(
+							<li>
+								<Link href='/account'>
+									<a className={`${ path === '/account' ? styles.current : styles.link }`}>
+											Profile
+									</a>
+								</Link>
+							</li>
+						)
+				}
 				<li className={styles.row}>
 					<Switch checked={(modeCtx.mode === 'dark')} onChange={toggleHandler} />
 					<div>

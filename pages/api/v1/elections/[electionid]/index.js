@@ -1,10 +1,10 @@
-import {MongoClient} from 'mongodb';
 import { validateRequestCredentials } from '../../../../../lib/auth/server';
-import md5 from 'md5';
+import { validateRequestBody } from '../index';
+import { MongoClient } from 'mongodb';
 
 export default async function handler(req, res) {
 	let message; let client; let election;
-	const ALLOWED = ['GET', 'DELETE']; // need to add PUT
+	const ALLOWED = ['GET', 'DELETE', 'PUT'];
 
 	const { electionid } = req.query;
 
@@ -19,13 +19,10 @@ export default async function handler(req, res) {
 	}
 
 	if (req.method === 'GET') {
-		
 		try {
 			election = await client.db()
 				.collection('elections')
-				.findOne({
-					_id: electionid
-				});
+				.findOne({_id: electionid});
 		} catch (error) {
 			message = 'Failed to fetch elections from the database, try again later!';
 			res.status(500).send(message);
@@ -55,9 +52,7 @@ export default async function handler(req, res) {
 		try {
 			election = await client.db()
 				.collection('elections')
-				.findOne({
-					_id: electionid
-				});
+				.findOne({_id: electionid});
 		} catch (error) {
 			message = 'Failed to fetch elections from the database, try again later!';
 			res.status(500).send(message);
@@ -107,9 +102,7 @@ export default async function handler(req, res) {
 		try {
 			election = await client.db()
 				.collection('elections')
-				.findOne({
-					_id: electionid
-				});
+				.findOne({_id: electionid});
 		} catch (error) {
 			message = 'Failed to fetch elections, try again later.';
 			res.status(500).send(message);
@@ -124,19 +117,12 @@ export default async function handler(req, res) {
 			return;
 		}
 
-		if (name) {
-			election['name'] = name;
-		}
-
-		delete election['id'];
-		election['id'] = md5(name);
-
 		try {
 			await client.db()
 				.collection('elections')
-				.updateOne({...election}, {
-					$set: {...election}
-				});
+				.updateOne({...election},
+					{ $set: {...election} }
+				);
 		} catch (error) {
 			message = 'Failed to update record!'
 			res.status(500).send(message);
@@ -148,13 +134,16 @@ export default async function handler(req, res) {
 		return;
 	}
 	
-	message = 'Only GET and POST requests are allowed!';
+	message = 'Only GET, POST, PUT requests are allowed!';
 	res.status(405).send(message);
-	await client.close();
 }
 
-function validateRequestBody({ req, res }) {
-
-
-	return true;
+export const findElectionById = async (client, electionid) => {
+	let election;
+	try {
+		election = await client.db()
+			.collection('elections')
+			.findOne({_id: electionid});
+	} catch (error) { election = null; }
+	return election;
 }

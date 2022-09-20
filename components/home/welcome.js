@@ -6,7 +6,7 @@ export default function Welcome() {
 		<>
 			<div className={styles.container}>
 				<div className={styles.image}>
-					<Image alt='voting' src='/voting.svg' width={400} height={300} layout='responsive' priority />
+					<Image alt='voting' src='/images/voting.svg' width={400} height={300} layout='responsive' priority />
 				</div>
 				<div className={styles.body}>
 					<h1>Welcome to e-Democracy!</h1>

@@ -1,4 +1,4 @@
-import { useState, useContext } from 'react';
+import { useContext, useRef } from 'react';
 import NotificationContext from '../../store/notification-context';
 import Key from '../icons/key';
 import Input from '../user-interface/input';
@@ -8,11 +8,11 @@ export default function ChangePasswordForm({
 	onPasswordChange
 }) {
 	const notificationCtx = useContext(NotificationContext);
-	const [password, setPassword] = useState('');
-	const [confirmPassword, setConfirmPassword] = useState('');
+	const passwordRef = useRef();
+	const confirmPasswordRef = useRef();
 	const validateForm = () => {
 		if (!(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/)
-			.test(password)) {
+			.test(passwordRef.current.value)) {
 			notificationCtx.set(
 				'error',
 				'Error',
@@ -21,7 +21,7 @@ export default function ChangePasswordForm({
 			return false;
 		}
 
-		if (password !== confirmPassword) {
+		if (passwordRef.current.value !== confirmPasswordRef.current.value) {
 			notificationCtx.set(
 				'error',
 				'Error',
@@ -34,6 +34,7 @@ export default function ChangePasswordForm({
 	};
 	const submitHandler = async (event) => {
 		event.preventDefault();
+		const password = passwordRef.current.value;
 
 		if (!validateForm()) return;
 
@@ -41,8 +42,8 @@ export default function ChangePasswordForm({
 
 		if (!result) return;
 
-		setPassword('');
-		setConfirmPassword('');
+		passwordRef.current.value  = '';
+		confirmPasswordRef.current.value = '';
 		notificationCtx.set(
 			'success',
 			'Success',
@@ -53,12 +54,12 @@ export default function ChangePasswordForm({
 		<form onSubmit={submitHandler}>
 			<Control>
 				<label>New password</label>
-				<Input icon={<Key />} set={password} get={setPassword} required type='password'
+				<Input icon={<Key />} innerRef={passwordRef} required type='password'
 					placeholder='&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;' />
 			</Control>
 			<Control>
 				<label>Confirm password</label>
-				<Input icon={<Key />} set={confirmPassword} get={setConfirmPassword} required type='password'
+				<Input icon={<Key />} innerRef={confirmPasswordRef} required type='password'
 					placeholder='&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;' />
 			</Control>
 			<input type='submit' hidden />

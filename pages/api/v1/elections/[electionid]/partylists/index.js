@@ -1,78 +1,117 @@
-import { connect } from '../../../../../../lib/db/mongodb-util';
+import { validateRequestCredentials } from '../../../../../../lib/auth/server';
+import { findElectionById } from '../index';
+import { MongoClient } from 'mongodb';
+import * as crypto from 'crypto';
 
 export default async function handler(req, res) {
 	let message; let client; let election;
 	const ALLOWED = ['GET', 'POST'];
 
+	const { electionid } = req.query;
+
 	if (ALLOWED.includes(req.method)) {
 		try {
-			client = await connect();
+			client = await MongoClient.connect(process.env.MONGODB);
 		} catch (error) {
-			message = 'Failed to connect to the database, try again later!';
+			message = 'Failed to connect to the database, try again later.';
 			res.status(500).send(message);
 			return;
 		}
 	}
 
-	const { electionid } = req.query;
-
-	try {
-		election = await client.db()
-			.collection('elections')
-			.findOne({ _id: electionid });
-		res.status(200).json(election);
-	} catch (error) {
-
-	}
-
 	if (req.method === 'GET') {
 
+		election = await findElectionById(client, electionid);
+
+		if (!election) {
+			message = 'There is no election with the provided id!';
+			res.status(404).send(message);
+			await client.close();
+			return;
+		}
+
+		res.status(200).json(election.partyLists);
+		await client.close();
+		return;
 	}
 
 	if (req.method === 'POST') {
+
+		if (!(await validateRequestCredentials({ req, res }))) {
+			await client.close();
+			return
+		}
+
+		if (!validateRequestBody({ req, res })) {
+			await client.close();
+			return;
+		}
+
+		const { name, placeOnBallot, color } = req.body;
+
+		const id = crypto.randomBytes(3*4).toString('base64url');
+
+		let partyList = {
+			_id: id,
+			name,
+			placeOnBallot,
+			color,
+			numberOfCandidates: 0
+		};
+
+		election = await findElectionById(client, electionid);
+
+		if (!election) {
+			message = 'There is no election with the provided id!';
+			res.status(404).send(message);
+			await client.close();
+			return;
+		}
+
+		const partyLists = [...election.partyLists, partyList];
+
+		try {
+			await client.db()
+				.collection('elections')
+				.updateOne({...election},
+					{ $set: {partyLists} });
+		} catch (error) {
+			message = 'Failed to update party lists!';
+			res.status(500).send(message);
+			await client.close();
+			return;
+		}
+
+		res.status(201).json(partyList);
+		await client.close();
+		return;
 	}
 
 	message = 'Only GET and POST requests are allowed!';
 	res.status(405).send(message);
-	await client.close();
 }
 
-export function validateRequestBody({ req, res }) {
+export function validateRequestBody({req, res}) {
 	let message;
+	const { name, placeOnBallot, color } = req.body;
 
-	const { partyName, placeOnBallot, color, logo } = req.body;
-
-	if (!partyName || partyName.trim() === '') {
-		message = 'Your request did not contain a valid partyName!';
+	if (!name || name.trim() === '') {
+		message = 'You did not provide a valid name for the party list!';
 		res.status(400).send(message);
 		return false;
 	}
 
 	if (!placeOnBallot || typeof placeOnBallot !== 'number') {
-		message = 'Your request did not contain a valid placeOnBallot!';
+		message = 'You did not provide a valid place on ballot property!';
 		res.status(400).send(message);
 		return false;
 	}
 
-	if (!color || !(/^#[A-Za-z0-9]{6}$/).test(color)) {
-		message = 'Your request did not contain a valid color!';
+	if (!(/^#[A-Za-z0-9]{6}$/).test(color)) {
+		message = 'You did not provide a valid party color!';
 		res.status(400).send(message);
 		return false;
 	}
 
-	if (!logo || logo.trim() === '') {
-		message = 'Your request did not contain a valid logo!';
-		res.status(400).send(message);
-		return false;
-	}
-
-	return true;
-}
-
-export async function electionExists(electionid, client) {
-	try {
-		const result = await client.select('elections', ['id'], { id: electionid });
-		if (result.length === 0) return false;
-	} catch (error) { return false; }
 	return true;
 }

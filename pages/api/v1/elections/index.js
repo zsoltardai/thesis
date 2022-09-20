@@ -1,6 +1,5 @@
 import { MongoClient } from 'mongodb';
 import * as crypto from 'crypto';
-import md5 from 'md5';
 
 export default async function handler(req, res) {
 	let message; let client; let elections;
@@ -48,7 +47,7 @@ export default async function handler(req, res) {
 			return;
 		}
 
-		const id = crypto.randomBytes(3*4).toString('base64');
+		const id = crypto.randomBytes(3*4).toString('base64url');
 
 		let election = {
 			_id: id,
@@ -64,7 +63,7 @@ export default async function handler(req, res) {
 		try {
 			await client.db()
 				.collection('elections')
-				.insertOne(election);
+				.insertOne({...election});
 		} catch (error) {
 			message = 'Failed to insert document to the database, try again later!';
 			res.status(500).send(message);
@@ -82,7 +81,7 @@ export default async function handler(req, res) {
 	res.status(405).send(message);
 }
 
-function validateRequestBody({ req, res }) {
+export function validateRequestBody({ req, res }) {
 	let message;
 	const { name, registration, voting } = req.body;
 

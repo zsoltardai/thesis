@@ -1,4 +1,4 @@
-import { useState, useContext } from 'react';
+import { useContext, useRef } from 'react';
 import NotificationContext from '../../store/notification-context';
 import Mail from '../icons/mail';
 import Input from '../user-interface/input';
@@ -6,10 +6,10 @@ import Control from '../user-interface/control';
 
 export default function ChangeEmailForm({ initial, onChangeEmail }) {
 	const notificationCtx = useContext(NotificationContext);
-	const [email, setEmail] = useState(initial.toString());
+	const emailRef = useRef();
 	const validateForm = () => {
 		if (!(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/)
-			.test(email)) {
+			.test(emailRef.current.value)) {
 			notificationCtx.set(
 				'error',
 				'Error',
@@ -18,10 +18,11 @@ export default function ChangeEmailForm({ initial, onChangeEmail }) {
 			return false;
 		}
 
-		return email !== initial;
+		return emailRef.current.value !== initial;
 	};
 	const submitHandler = async (event) => {
 		event.preventDefault();
+		const email = emailRef.current.value;
 
 		if (!validateForm()) return;
 
@@ -31,7 +32,7 @@ export default function ChangeEmailForm({ initial, onChangeEmail }) {
 		<form onSubmit={submitHandler}>
 			<Control>
 				<label>E-mail</label>
-				<Input icon={<Mail />} set={email} get={setEmail} />
+				<Input icon={<Mail />} innerRef={emailRef} defaultValue={initial.toString()} />
 			</Control>
 			<input type='submit' hidden />
 		</form>

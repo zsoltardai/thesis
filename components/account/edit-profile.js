@@ -110,15 +110,15 @@ export default function EditProfile({
 		<div className={styles.container}>
 			<Control>
 				<label>Identity number</label>
-				<Input icon={<IdentityCard />} set={ user.identityNumber } disabled />
+				<Input icon={<IdentityCard />} value={user.identityNumber} readOnly disabled />
 			</Control>
 			<Control>
 				<label>First name</label>
-				<Input icon={<Pen />} set={ user.firstName } disabled />
+				<Input icon={<Pen />} value={user.firstName} readOnly disabled />
 			</Control>
 			<Control>
 				<label>Last name</label>
-				<Input icon={<Pen />} set={ user.lastName } disabled />
+				<Input icon={<Pen />} value={user.lastName} readOnly disabled />
 			</Control>
 			<Helper />
 			<ChangeEmailForm initial={user.email} onChangeEmail={changeEmailHandler} />

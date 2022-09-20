@@ -10,7 +10,7 @@ export default async function handler(req, res) {
 			cookies = Object.keys(COOKIES)
 				.map(key => (`${COOKIES[key]}=;path=/;expires=${now};`));
 		}
-		res.status(200).setHeader('Set-Cookie', cookies).json({ session });
+		res.status(200).setHeader('Set-Cookie', cookies).json(session);
 		return;
 	}
 

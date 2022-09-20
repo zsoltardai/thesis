@@ -8,6 +8,8 @@ import Mail from '../components/icons/mail';
 import Key from '../components/icons/key';
 import Input from '../components/user-interface/input';
 import Button from '../components/user-interface/button';
+import styles from '../styles/login.module.css';
+import Image from 'next/image';
 
 export default function Login() {
 	const router = useRouter();
@@ -70,15 +72,22 @@ export default function Login() {
 		});
 	};
 	return (
-		<form onSubmit={submitHandler}>
-			<h2>Login</h2>
-			<Input id='email' icon={<Mail />} label='E-mail' innerRef={emailRef} type='text'
-						 placeholder='e.g. example@email.com' />
-			<Input id='password' icon={<Key />} label='Password' innerRef={passwordRef} type='password'
-						 placeholder='&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;' />
-			<Button>Login</Button>
-			<Question />
-		</form>
+		<div className={styles.container}>
+			<div className={styles.left}>
+				<Image src='/images/auth.svg' alt='auth' height={600} width={400} layout='responsive' />
+			</div>
+			<div className={styles.right}>
+				<form onSubmit={submitHandler}>
+					<h2>Login</h2>
+					<Input id='email' icon={<Mail />} label='E-mail' innerRef={emailRef} type='text'
+								 placeholder='e.g. example@email.com' />
+					<Input id='password' icon={<Key />} label='Password' innerRef={passwordRef} type='password'
+								 placeholder='&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;' />
+					<Button>Login</Button>
+					<Question />
+				</form>
+			</div>
+		</div>
 	);
 }
 

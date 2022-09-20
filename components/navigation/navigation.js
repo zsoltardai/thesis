@@ -47,13 +47,19 @@ export default function Navigation() {
 									</a>
 								</Link>
 							</li>
-							<li>
-								<Link href='/account'>
-									<a className={`${ path === '/account' ? styles.current : styles.link }`}>
-										Profile
-									</a>
-								</Link>
-							</li>
+							{
+								(sessionContext.session) 
+									&&
+									(
+										<li>
+											<Link href='/account'>
+												<a className={`${ path === '/account' ? styles.current : styles.link }`}>
+														Profile
+												</a>
+											</Link>
+										</li>
+									)
+							}
 							<li>
 								<button className={styles.mode} onClick={toggleModeHandler}>
 									{

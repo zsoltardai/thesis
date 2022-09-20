@@ -14,10 +14,10 @@ export function SessionContextProvider({children}) {
 	const [session, setSession] = useState(null);
 
 	useEffect(() =>{
-		updateHandler()
-			.then(session => {
-				setSession(session);
-			});
+		(async () => {
+			const session = await updateHandler();
+			setSession(session);
+		})();
 	}, []);
 
 	const loginHandler = async (email, password, callback) => {
@@ -35,6 +35,10 @@ export function SessionContextProvider({children}) {
 	const logoutHandler = () => {
 		deleteCookie('auth.token');
 		deleteCookie('auth.encrypted-private-key-pem');
+		deleteCookie('auth.encrypted-email');
+		deleteCookie('auth.encrypted-identity-number');
+		deleteCookie('auth.encrypted-first-name');
+		deleteCookie('auth.encrypted-last-name');
 		setSession(null);
 		return true;
 	};

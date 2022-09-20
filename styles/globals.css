@@ -15,6 +15,7 @@
   --color-text: var(--color-black);
   --background-color: var(--color-white);
   --filter: brightness(1.2);
+  --border-light: rgba(0, 0, 0, 0.1);
 }
 
 * {
@@ -35,6 +36,7 @@ a {
   --color-text: var(--color-white);
   --background-color: #171A21;
   --box-shadow: rgba(255, 255, 255, 0.1) 0px 0px 0px 1px;
+  --border-light: rgba(255, 255, 255, 0.1);
 }
 
 .notification {

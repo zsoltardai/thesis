@@ -57,7 +57,7 @@
     filter: brightness(1.2);
 }
 
-@media screen and (max-width: 800px) {
+@media screen and (max-width: 1000px) {
     .container {
         height: auto;
         padding: 0.5rem 1rem;

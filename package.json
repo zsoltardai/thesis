@@ -11,6 +11,7 @@
   "dependencies": {
     "cookies-next": "^2.1.1",
     "crypto-js": "^4.1.1",
+    "form-data": "^4.0.0",
     "jsonwebtoken": "^8.5.1",
     "md5": "^2.3.0",
     "mongodb": "^4.9.0",

@@ -1,5 +1,5 @@
 import Image from 'next/image';
-import image from '../public/404.svg';
+import image from '../public/images/404.svg';
 import Button from '../components/user-interface/button';
 import styles from '../styles/404.module.css';
 

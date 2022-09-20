@@ -1,4 +1,4 @@
-import {useState, useContext, useEffect} from 'react';
+import {useState, useContext, useEffect, useRef} from 'react';
 import SessionContext from '../store/session-context';
 import NotificationContext from '../store/notification-context';
 import { useRouter } from 'next/router';
@@ -8,7 +8,7 @@ import Button from '../components/user-interface/button';
 import Timer from '../components/user-interface/timer';
 import Key from '../components/icons/key';
 import RSA from '../lib/encryption/rsa';
-import EditProfile from '../components/profile/edit-profile';
+import EditProfile from '../components/account/edit-profile';
 import { getSession } from '../lib/auth/server';
 import md5 from 'md5';
 
@@ -16,7 +16,7 @@ export default function Account() {
 	const router = useRouter();
 	const sessionCtx = useContext(SessionContext);
 	const notificationCtx = useContext(NotificationContext);
-	const [password, setPassword] = useState('');
+	const passwordRef = useRef();
 	const [passwordHash, setPasswordHash] = useState('');
 	const [rsaKeyPair, setRsaKeyPair] = useState(null);
 	const [remaining, setRemaining] = useState(null);
@@ -26,33 +26,28 @@ export default function Account() {
 		const interval = setInterval(() => {
 			const current = new Date().getTime();
 			setRemaining(new Date(expiresAt.getTime() - current));
-			if (remaining !== null
-					&& (remaining.getMinutes() === 0
-							&& remaining.getSeconds() === 0)
-			) {
+			if (remaining !== null && (remaining.getMinutes() === 0 && remaining.getSeconds() === 0)) {
 				setPasswordHash('');
 				setRsaKeyPair(null);
 				setRemaining(null)
 				setExpiresAt(null);
 			}
 		}, 1000);
-		return () => {
-			return clearInterval(interval);
-		};
+		return () => clearInterval(interval);
 	}, [remaining, expiresAt]);
 	const redirectHandler = () => router.replace('/');
 	const submitHandler = () => {
 		const { user } = sessionCtx.session;
-		let keys;
+		let keys; let password = passwordRef.current.value;
+		passwordRef.current.value = '';
 		try {
 			keys = new RSA(user.encryptedPrivateKeyPem.trim(), password);
-		} catch (_) {
+		} catch (error) {
 			notificationCtx.set(
 				'error',
 				'Error',
 				'The provided password was invalid!'
 			);
-			setPassword('');
 			return;
 		}
 		notificationCtx.set(
@@ -62,7 +57,6 @@ export default function Account() {
 		);
 		setRsaKeyPair(keys);
 		setPasswordHash(md5(password));
-		setPassword('');
 		setExpiresAt(new Date(new Date().getTime() + (2 * 60000)));
 	};
 
@@ -71,7 +65,7 @@ export default function Account() {
 			<>
 				<Modal image='/auth.svg' alt='auth' onCloseClicked={redirectHandler}>
 					<h1>Please enter your password:</h1>
-					<Input icon={<Key />} type='password' set={password} get={setPassword}
+					<Input icon={<Key />} type='password' innerRef={passwordRef}
 				 		placeholder='&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;' />
 					<Button onClick={submitHandler}>Submit</Button>
 				</Modal>
