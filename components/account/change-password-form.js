@@ -1,8 +1,7 @@
 import { useContext, useRef } from 'react';
 import NotificationContext from '../../store/notification-context';
-import Key from '../icons/key';
-import Input from '../user-interface/input';
-import Control from '../user-interface/control';
+import { Input, Control } from '../user-interface';
+import { Key } from '../icons';
 
 export default function ChangePasswordForm({
 	onPasswordChange
@@ -54,15 +53,28 @@ export default function ChangePasswordForm({
 		<form onSubmit={submitHandler}>
 			<Control>
 				<label>New password</label>
-				<Input icon={<Key />} innerRef={passwordRef} required type='password'
-					placeholder='&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;' />
+				<Input
+					Icon={Key}
+					ref={passwordRef}
+					required
+					type='password'
+					placeholder='&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;'
+				/>
 			</Control>
 			<Control>
 				<label>Confirm password</label>
-				<Input icon={<Key />} innerRef={confirmPasswordRef} required type='password'
-					placeholder='&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;' />
+				<Input
+					Icon={Key}
+					ref={confirmPasswordRef}
+					required
+					type='password'
+					placeholder='&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;'
+				/>
 			</Control>
-			<input type='submit' hidden />
+			<input
+				type='submit'
+				hidden
+			/>
 		</form>
 	);
 }

@@ -1,8 +1,7 @@
-import { useContext, useRef } from 'react';
+import React, { useContext, useRef } from 'react';
 import NotificationContext from '../../store/notification-context';
-import Mail from '../icons/mail';
-import Input from '../user-interface/input';
-import Control from '../user-interface/control';
+import { Input, Control } from '../user-interface';
+import { Mail } from '../icons';
 
 export default function ChangeEmailForm({ initial, onChangeEmail }) {
 	const notificationCtx = useContext(NotificationContext);
@@ -32,9 +31,16 @@ export default function ChangeEmailForm({ initial, onChangeEmail }) {
 		<form onSubmit={submitHandler}>
 			<Control>
 				<label>E-mail</label>
-				<Input icon={<Mail />} innerRef={emailRef} defaultValue={initial.toString()} />
+				<Input
+					Icon={Mail}
+					ref={emailRef}
+					defaultValue={initial.toString()}
+				/>
 			</Control>
-			<input type='submit' hidden />
+			<input
+				type='submit'
+				hidden
+			/>
 		</form>
 	);
 }

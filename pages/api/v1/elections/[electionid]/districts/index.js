@@ -1,6 +1,6 @@
 import { validateRequestCredentials } from '../../../../../../lib/auth/server';
+import { connect } from '../../../../../../lib/database';
 import { findElectionById } from '../index';
-import { MongoClient } from 'mongodb';
 import * as crypto from 'crypto';
 
 export default async function handler(req, res) {
@@ -8,9 +8,9 @@ export default async function handler(req, res) {
 	const ALLOWED = ['GET', 'POST'];
 
 	if (ALLOWED.includes(req.method)) {
-		try {
-			client = await MongoClient.connect(process.env.MONGODB);
-		} catch (error) {
+		client = await connect();
+
+		if (!client) {
 			message = 'Failed to connect to the database, try again later.';
 			res.status(500).send(message);
 			await client.close();
@@ -38,7 +38,7 @@ export default async function handler(req, res) {
 
 	if (req.method === 'POST') {
 
-		if (!(await validateRequestCredentials({ req, res }))) {
+		if (!(await validateRequestCredentials({req, res}))) {
 			await client.close();
 			return;
 		}
@@ -105,10 +105,8 @@ export const validateRequestBody = (election, {req, res}) => {
 		for (let district of districts) {
 			if (district._id === districtid) continue;
 			if (district.postalCodes.includes(postalCode)) {
-				message = `The postal code: ${postalCode} is already included` +
-						`in a different district with the id of: ${district._id}!`;
-				res.status(409).send(message);
-				return false;
+				const index = postalCodes.indexOf(postalCode);
+				postalCodes.splice(index, 1);
 			}
 		}
 	}

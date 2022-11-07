@@ -3,7 +3,6 @@
     grid-template-columns: 1fr 1fr;
     max-height: 500px;
     align-items: center;
-    justify-content: center;
     width: 80%;
     align-self: center;
     gap: 2rem;
@@ -18,15 +17,13 @@
 
 .container .right {
     position: relative;
-    height: 100%;
 }
 
 .container .right form {
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: flex-start;
     height: 100%;
-    gap: 20px;
 }
 
 .container .right form h2 {
@@ -50,6 +47,6 @@
 @media screen and (max-width: 800px) {
     .container {
         grid-template-columns: 1fr;
-        width: 90%;
+        width: 100%;
     }
 }

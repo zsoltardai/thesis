@@ -1,5 +1,5 @@
 import { getSession } from '../../../../lib/auth/server';
-import { MongoClient } from 'mongodb';
+import { connect } from '../../../../lib/database';
 import jwt from 'jsonwebtoken';
 import path from 'path';
 import md5 from 'md5';
@@ -10,19 +10,15 @@ export default async function handler(req, res) {
 
 	if (req.method === 'PUT') {
 
-		const { email, encryptedEmail } = req.body;
+		const { emailHash, email, encryptedEmail } = req.body;
 
 		const { token } = await getSession({ req, res });
-
-		console.log(token);
 
 		if (!token) {
 			message = 'Unauthorized!';
 			res.status(401).send(message);
 			return;
 		}
-
-		const { emailHash } = token;
 
 		if (!email || !(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/)
 			.test(email)) {
@@ -39,9 +35,9 @@ export default async function handler(req, res) {
 
 		const newEmailHash = md5(email);
 
-		try {
-			client = await MongoClient.connect(process.env.MONGODB);
-		} catch (error) {
+		client = await connect();
+
+		if (!client) {
 			message = 'Failed to connect to the database, try again later!';
 			res.status(500).send(message);
 			return;

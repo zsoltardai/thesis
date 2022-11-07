@@ -1,6 +1,6 @@
 import { validateRequestCredentials } from '../../../../../../lib/auth/server';
+import { connect } from '../../../../../../lib/database';
 import { findElectionById } from '../index';
-import { MongoClient } from 'mongodb';
 import * as crypto from 'crypto';
 import md5 from 'md5';
 
@@ -9,9 +9,9 @@ export default async function handler(req, res) {
 	const ALLOWED = ['GET', 'POST'];
 
 	if (ALLOWED.includes(req.method)) {
-		try {
-			client = await MongoClient.connect(process.env.MONGODB);
-		} catch (error) {
+		client = await connect();
+
+		if (!client) {
 			message = 'Failed to connect to the database, try again later.';
 			res.status(500).send(message);
 			await client.close();
@@ -45,7 +45,7 @@ export default async function handler(req, res) {
 
 		election = await findElectionById(client, electionid);
 
-		if (!validateRequestBody(election, {req, res})) {
+		if (!validateRequestBody(election, {req, res}, false)) {
 			await client.close();
 			return;
 		}

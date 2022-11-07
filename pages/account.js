@@ -2,13 +2,10 @@ import {useState, useContext, useEffect, useRef} from 'react';
 import SessionContext from '../store/session-context';
 import NotificationContext from '../store/notification-context';
 import { useRouter } from 'next/router';
-import Modal from '../components/user-interface/modal';
-import Input from '../components/user-interface/input';
-import Button from '../components/user-interface/button';
-import Timer from '../components/user-interface/timer';
-import Key from '../components/icons/key';
+import { Button, Timer, Input, Modal } from '../components/user-interface';
+import { Key } from '../components/icons';
 import RSA from '../lib/encryption/rsa';
-import EditProfile from '../components/account/edit-profile';
+import { EditProfile } from '../components/account';
 import { getSession } from '../lib/auth/server';
 import md5 from 'md5';
 
@@ -63,11 +60,17 @@ export default function Account() {
 	if (!rsaKeyPair) {
 		return (
 			<>
-				<Modal image='/auth.svg' alt='auth' onCloseClicked={redirectHandler}>
+				<Modal image='/images/auth.svg' alt='auth' onCloseClicked={redirectHandler}>
 					<h1>Please enter your password:</h1>
-					<Input icon={<Key />} type='password' innerRef={passwordRef}
-				 		placeholder='&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;' />
-					<Button onClick={submitHandler}>Submit</Button>
+					<Input
+						Icon={Key}
+						type='password'
+						ref={passwordRef}
+					/>
+					<Button
+						onClick={submitHandler}
+						title="Submit"
+					/>
 				</Modal>
 			</>
 		);

@@ -1,16 +1,14 @@
 import { getSession } from '../../../../lib/auth/server';
-import { MongoClient } from 'mongodb';
+import { connect } from '../../../../lib/database';
 
 export default async function handler(req, res) {
 	let message; let client; let user;
 
 	if (req.method === 'PUT') {
 
-		const { currentPasswordHash, newPasswordHash, encryptedPrivateKeyPem } = req.body;
+		const { emailHash, currentPasswordHash, newPasswordHash, encryptedPrivateKeyPem } = req.body;
 
 		const { token } = await getSession({ req, res });
-
-		const { emailHash } = token;
 
 		if (!token) {
 			message = 'Unauthorized!';
@@ -36,9 +34,9 @@ export default async function handler(req, res) {
 			return;
 		}
 
-		try {
-			client = await MongoClient.connect(process.env.MONGODB);
-		} catch (error) {
+		client = await connect();
+
+		if (!client) {
 			message = 'Failed to connect to the database, try again later!';
 			res.status(500).send(message);
 			return;

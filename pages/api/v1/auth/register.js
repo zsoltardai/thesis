@@ -1,10 +1,18 @@
-import { MongoClient } from 'mongodb';
+import { connect } from '../../../../lib/database';
 import md5 from 'md5';
 
 export default async function handler(req, res) {
 	let message; let client;
 
 	if (req.method === 'POST') {
+
+		client = await connect();
+
+		if (!client) {
+			message = 'Failed to connect to the database, try again later!';
+			res.status(500).send(message);
+			return;
+		}
 
 		const {
 			identityNumber,
@@ -31,8 +39,6 @@ export default async function handler(req, res) {
 			return;
 		}
 
-		// TODO implementing a test if the provided postal code exists
-
 		if (!postalCode || !(/^[0-9]{4}$/).test(postalCode)) {
 			message = 'The provided postal code is invalid!';
 			res.status(400).send(message);
@@ -40,43 +46,32 @@ export default async function handler(req, res) {
 		}
 
 		try {
-			client = await MongoClient.connect(process.env.MONGODB);
+			let exists = await client.db().collection('postalCodes').findOne({postalCode});
+
+			if (exists) {
+				message = 'The provided postal code does not exist!';
+				res.status(400).send(message);
+				return;
+			}
 		} catch (error) {
-			message = 'Failed to connect to the database, try again later!';
+			message = 'Failed to fetch postal codes, try again later.!';
 			res.status(500).send(message);
 			return;
 		}
-		
-		let code;
+
+		let code = null;
 
 		try {
-			code = await client.db()
-				.collection('codes')
-				.findOne({
-					code: registrationCodeHash
-				});
+			code = await client.db().collection('codes').findOne({code: registrationCodeHash});
+
+			if (!code) {
+				message = 'The provided registration code was invalid!';
+				res.status(400).send(message);
+				await client.close();
+				return;
+			}
 		} catch (error) {
 			message = 'Failed to fetch codes from the collection, try again later!';
-			res.status(500).send(message);
-			await client.close();
-			return;
-		}
-		
-		if (!code) {
-			message = 'The provided registration code was invalid!';
-			res.status(400).send(message);
-			await client.close();
-			return;
-		}
-
-		try {
-			await client.db()
-				.collection('codes')
-				.deleteOne({
-					_id: code._id
-				});
-		} catch (error) {
-			message = 'Failed to delete the registration code from the collection, try again later!';
 			res.status(500).send(message);
 			await client.close();
 			return;
@@ -84,12 +79,15 @@ export default async function handler(req, res) {
 
 		const identityNumberHash = md5(identityNumber);
 
-		let user;
-
 		try {
-			user = await client.db()
-				.collection('users')
-				.findOne({identityNumberHash: identityNumberHash});
+			const user = await client.db().collection('users').findOne({identityNumberHash});
+
+			if (user) {
+				message = 'There is already a user with this identity number!';
+				res.status(409).send(message);
+				await client.close();
+				return;
+			}
 		} catch (error) {
 			message = 'Failed to fetch users from the users collection!';
 			res.status(500).send(message);
@@ -97,35 +95,35 @@ export default async function handler(req, res) {
 			return;
 		}
 
-		if (user) {
-			message = 'There is already a user with this identity number!';
-			res.status(409).send(message);
-			await client.close();
-			return;
-		}
-
 		const emailHash = md5(email);
 
-		user = {
-			identityNumberHash: identityNumberHash,
-			encryptedIdentityNumber: encryptedIdentityNumber,
-			emailHash: emailHash,
-			encryptedEmail: encryptedEmail,
-			encryptedFirstName: encryptedFirstName,
-			encryptedLastName: encryptedLastName,
-			encryptedPrivateKeyPem: encryptedPrivateKeyPem,
-			passwordHash: passwordHash,
+		let user = {
+			identityNumberHash,
+			encryptedIdentityNumber,
+			emailHash,
+			encryptedEmail,
+			encryptedFirstName,
+			encryptedLastName,
+			encryptedPrivateKeyPem,
+			passwordHash,
 			postalCode
 		};
 
 		user['_id'] = md5(JSON.stringify(user));
 
 		try {
-			await client.db()
-				.collection('users')
-				.insertOne(user);
+			await client.db().collection('users').insertOne(user);
 		} catch(error) {
 			message = 'Failed to create a new user, try again later!';
+			res.status(500).send(message);
+			await client.close();
+			return;
+		}
+
+		try {
+			await client.db().collection('codes').deleteOne({_id: code._id});
+		} catch (error) {
+			message = 'Failed to delete the registration code from the collection, try again later!';
 			res.status(500).send(message);
 			await client.close();
 			return;

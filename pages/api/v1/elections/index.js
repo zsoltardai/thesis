@@ -25,6 +25,7 @@ export default async function handler(req, res) {
 					districts: 0,
 					candidates: 0,
 					partyLists: 0,
+					registrations: 0,
 					votes: 0
 				})
 				.toArray();
@@ -57,6 +58,7 @@ export default async function handler(req, res) {
 			districts: [],
 			partyLists: [],
 			candidates: [],
+			registrations: [],
 			votes: []
 		};
 
@@ -92,6 +94,13 @@ export function validateRequestBody({ req, res }) {
 	}
 
 	{
+		if (typeof registration !== 'object' || !registration.hasOwnProperty('start')
+				|| !registration.hasOwnProperty('end')) {
+			message = 'You did not provide a valid registration object!';
+			res.status(400).send(message);
+			return false;
+		}
+
 		const { start, end } = registration;
 		if (!start || !/^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}.[0-9]{3}Z$/.test(start)) {
 			message = 'You did not provide a valid registration start date!';
@@ -111,6 +120,13 @@ export function validateRequestBody({ req, res }) {
 	}
 
 	{
+		if (typeof voting !== 'object' || !voting.hasOwnProperty('start')
+				|| !voting.hasOwnProperty('end')) {
+			message = 'You did not provide a valid voting object!';
+			res.status(400).send(message);
+			return false;
+		}
+
 		const { start, end } = voting;
 		if (!start || !/^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}.[0-9]{3}Z$/.test(start)) {
 			message = 'You did not provide a valid voting start date!';

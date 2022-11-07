@@ -1,29 +1,42 @@
-import Input from '../user-interface/input';
-import Pen from '../icons/pen';
-import IdentityCard from '../icons/identity-card';
+import React from 'react';
+import {Input, Label} from '../user-interface';
+import { Pen, IdentityCard } from '../icons';
 
-export default function FirstStepForm({firstNameRef, lastNameRef, identityNumberRef}) {
+export default function FirstStepForm({
+	firstNameRef,
+	lastNameRef,
+	identityNumberRef
+}) {
 	return (
 		<>
+			<Label
+				id='firstName'
+				title='Firstname'
+			/>
 			<Input
 				id='firstName'
-				label='Firstname'
-				innerRef={firstNameRef}
-				icon={<Pen />}
+				ref={firstNameRef}
+				Icon={Pen}
 				placeholder='e.g. Jon'
+			/>
+			<Label
+				id='lastName'
+				title='Lastname'
 			/>
 			<Input
 				id='lastName'
-				label='Lastname'
-				innerRef={lastNameRef}
-				icon={<Pen />}
+				ref={lastNameRef}
+				Icon={Pen}
 				placeholder='e.g. Johnson'
+			/>
+			<Label
+				id='identityNumber'
+				title='Identity number'
 			/>
 			<Input
 				id='identityNumber'
-				label='Identity number'
-				innerRef={identityNumberRef}
-				icon={<IdentityCard />}
+				ref={identityNumberRef}
+				Icon={IdentityCard}
 				placeholder='e.g. 123456AA'
 			/>
 		</>

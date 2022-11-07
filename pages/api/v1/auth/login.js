@@ -1,4 +1,4 @@
-import { MongoClient } from 'mongodb';
+import { connect } from '../../../../lib/database';
 import jwt from 'jsonwebtoken';
 import path from 'path'
 import md5 from 'md5'
@@ -11,25 +11,24 @@ export default async function handler(req, res) {
 
 		const { email, passwordHash } = req.body;
 
-		if (!(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/)
-			.test(email)) {
+		if (!(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/).test(email)) {
 			message = 'The request did not contain a valid e-mail address!';
 			res.status(400).send(message);
+			return;
+		}
+
+		client = await connect();
+
+		if (!client) {
+			message = 'Failed to connect to the database, try again later!';
+			res.status(500).send(message);
 			return;
 		}
 
 		const emailHash = md5(email);
 
 		try {
-			client = await MongoClient.connect(process.env.MONGODB);
-		} catch (error) {
-			message = 'Failed to connect to the database, try again later!';
-			res.status(500).send(message);
-			return;
-		}
-
-		try {
-			user = await client.db().collection('users').findOne({ emailHash });
+			user = await client.db().collection('users').findOne({emailHash});
 		} catch (error) {
 			message = 'Failed to fetch users from the collection, try again later!';
 			res.status(500).send(message);
@@ -54,8 +53,7 @@ export default async function handler(req, res) {
 		const key = fs.readFileSync(path.join(process.cwd(), 'key.key'));
 
 		const payload = {
-			emailHash: emailHash,
-			identityNumberHash: user.identityNumberHash,
+			postalCode: user.postalCode,
 			iat: Date.now(),
 			exp: Math.floor(Date.now() / 1000) + (60 * 60)
 		};
@@ -68,14 +66,15 @@ export default async function handler(req, res) {
 				});
 			});
 		})();
-		
+
 		const cookies = [
 			'auth.token=' + token + ';path=/;',
 			'auth.encrypted-identity-number=' + user.encryptedIdentityNumber + ';path=/;',
 			'auth.encrypted-email=' + user.encryptedEmail + ';path=/;',
 			'auth.encrypted-first-name=' + user.encryptedFirstName + ';path=/;',
 			'auth.encrypted-last-name=' + user.encryptedLastName + ';path=/;',
-			'auth.encrypted-private-key-pem=' + user.encryptedPrivateKeyPem + ';path=/;'
+			'auth.encrypted-private-key-pem=' + user.encryptedPrivateKeyPem + ';path=/;',
+			'auth.postal-code=' + user.postalCode + ';path=/;'
 		];
 
 		message = 'You successfully logged in!';

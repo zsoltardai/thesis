@@ -29,13 +29,6 @@ export default function Dropdown() {
 		<nav className={styles.dropdown}>
 			<ul className={styles.list}>
 				<li>
-					<Link href='/referendums'>
-						<a className={`${ path === '/referendums' ? styles.current : styles.link }`}>
-              Referendums
-						</a>
-					</Link>
-				</li>
-				<li>
 					<Link href='/elections'>
 						<a className={`${ path === '/elections' ? styles.current : styles.link }`}>
               Elections
@@ -43,7 +36,7 @@ export default function Dropdown() {
 					</Link>
 				</li>
 				{
-					(sessionCtx.session) 
+					(sessionCtx.session)
 						&&
 						(
 							<li>
@@ -63,12 +56,12 @@ export default function Dropdown() {
 								?
 								<Sun width={25} height={25} />
 								:
-								<Moon width={20} height={20} /> 
+								<Moon width={20} height={20} />
 						}
 					</div>
 				</li>
 				<li>
-					{ 
+					{
 						sessionCtx.session ?
 							<Button onClick={logoutHandler}>
                   Logout
@@ -76,7 +69,7 @@ export default function Dropdown() {
 							:
 							<Button href='/login'>
                   Login
-							</Button> 
+							</Button>
 					}
 				</li>
 			</ul>

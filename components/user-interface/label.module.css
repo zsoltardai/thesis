@@ -1,0 +1,5 @@
+.label {
+    text-transform: uppercase;
+    color: var(--color-text);
+    margin: 1.5rem 0;
+}

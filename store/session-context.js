@@ -12,6 +12,7 @@ const SessionContext = createContext({
 export function SessionContextProvider({children}) {
 
 	const [session, setSession] = useState(null);
+	const [loading, setLoading] = useState(false);
 
 	useEffect(() =>{
 		(async () => {
@@ -27,7 +28,7 @@ export function SessionContextProvider({children}) {
 		const response = await fetch('/api/v1/auth/login', { method: 'POST',  headers, body });
 		const message = await response.text();
 		if (!response.ok) { callback(message, null); return false; }
-		updateHandler().then(session  => setSession(session));
+		await updateHandler();
 		callback(null, message);
 		return true;
 	};
@@ -39,6 +40,7 @@ export function SessionContextProvider({children}) {
 		deleteCookie('auth.encrypted-identity-number');
 		deleteCookie('auth.encrypted-first-name');
 		deleteCookie('auth.encrypted-last-name');
+		deleteCookie('auth.postal-code');
 		setSession(null);
 		return true;
 	};
@@ -46,17 +48,19 @@ export function SessionContextProvider({children}) {
 	const updateHandler = async () => {
 		if (!getCookie('auth.token')) return null;
 		return new Promise(async (resolve, _) => {
-			const headers = { Accept: 'application/json' };
+			const headers = { Accept: 'application/json' }; setLoading(true);
 			const response = await fetch('/api/v1/auth/session',
 				{ method: 'GET', headers});
 			if (!response.ok) resolve(null);
 			const session = await response.json();
+			setSession(session); setLoading(false);
 			resolve(session);
 		});
 	}
 
 	const context = {
-		session: session,
+		session,
+		loading,
 		login: loginHandler,
 		logout: logoutHandler,
 		update: updateHandler

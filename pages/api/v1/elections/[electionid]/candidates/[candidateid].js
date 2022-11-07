@@ -2,8 +2,6 @@ import {MongoClient} from 'mongodb';
 import {findElectionById} from '../index';
 import {validateRequestCredentials} from '../../../../../../lib/auth/server';
 import {updateCandidates, validateRequestBody} from './index';
-import {updateElectionDistrict} from '../districts';
-import {findElectionDistrictById} from '../districts/[districtid]';
 import md5 from 'md5';
 
 export default async function handler(req, res) {

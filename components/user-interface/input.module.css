@@ -19,12 +19,12 @@
     display: grid;
     color: var(--color-text);
     background: none;
-    border: 1px solid var(--color-primary);
+    border: 1px solid var(--color-text);
     border-radius: var(--border-radius);
     padding: 0.2rem 0.5rem;
     gap: 10px;
     align-items: center;
-    margin: 0.25rem 0;
+    margin: 1rem 0;
 }
 
 .icon {
@@ -45,6 +45,9 @@
     letter-spacing: 0.05rem;
 }
 
+.input input:focus {
+    outline: none;
+}
 
 .input input:-webkit-autofill,
 .input input:-webkit-autofill:hover,
@@ -52,4 +55,8 @@
 .input input:-webkit-autofill:active{
     -webkit-box-shadow: 0 0 0 30px var(--background-color) inset !important;
     -webkit-text-fill-color: var(--color-text) !important;
+}
+
+.focused {
+    border: 1px solid var(--color-primary);
 }

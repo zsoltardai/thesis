@@ -1,21 +1,18 @@
-import {useContext, useRef, useState} from 'react';
+import React, { useContext, useRef, useState } from 'react';
 import NotificationContext from '../store/notification-context';
 import { useRouter } from 'next/router';
+import Link from 'next/link';
 import { getSession } from '../lib/auth/server';
-import Input from '../components/user-interface/input';
-import Secret from '../components/icons/secret';
-import Button from '../components/user-interface/button';
-import RSA from '../lib/encryption/rsa';
-import md5 from 'md5';
-import styles from '../styles/register.module.css';
-import LoadingSpinner from '../components/layout/loading-spinner';
+import { Input, Label, Form } from '../components/user-interface';
+import { Secret } from '../components/icons';
 import FirstStepForm from '../components/register/first-step-form';
 import SecondStepForm from '../components/register/second-step-form';
 import ThirdStepForm from '../components/register/third-step-form';
-import Form from '../components/user-interface/form';
-import Steps from '../components/register/steps';
 import Navigate from '../components/register/navigate';
-import Link from 'next/link';
+import Steps from '../components/register/steps';
+import RSA from '../lib/encryption/rsa';
+import md5 from 'md5';
+import styles from '../styles/register.module.css';
 
 export default function Register() {
 	const router = useRouter();
@@ -30,7 +27,7 @@ export default function Register() {
 	const registrationCodeRef = useRef();
 	const [step, setStep] = useState(0);
 	const validateForm = () => {
-		
+
 		switch (step) {
 		case 0:
 			if (!(/[A-ZÁÉ][a-záé]{2,}/).test(firstNameRef.current.value)) {
@@ -41,7 +38,7 @@ export default function Register() {
 				);
 				return false;
 			}
-			
+
 			if (!(/[A-ZÁÉ][a-záé]{2,}/).test(lastNameRef.current.value)) {
 				notificationCtx.set(
 					'error',
@@ -59,7 +56,7 @@ export default function Register() {
 				);
 				return false;
 			}
-			
+
 			return true;
 		case 1:
 			if (!(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/)
@@ -181,7 +178,7 @@ export default function Register() {
 
 		if (!response.ok) {
 			notificationCtx.set(
-				'error', 
+				'error',
 				'Error',
 				message
 			);
@@ -189,7 +186,7 @@ export default function Register() {
 			return;
 		}
 		notificationCtx.set(
-			'success', 
+			'success',
 			'Success',
 			message
 		);
@@ -226,12 +223,15 @@ export default function Register() {
 				<Helper />
 			</div>
 			<div style={{display: (step !== 3) ? 'none' : 'block'}}>
+				<Label
+					id="registrationCode"
+					title='Registration code'
+				/>
 				<Input
 					id='registrationCode'
-					label='Registration code'
-					innerRef={registrationCodeRef}
+					ref={registrationCodeRef}
 					type='password'
-					icon={<Secret />}
+					Icon={Secret}
 					placeholder='&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;'
 				/>
 			</div>

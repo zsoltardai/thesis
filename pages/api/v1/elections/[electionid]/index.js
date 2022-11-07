@@ -1,6 +1,6 @@
 import { validateRequestCredentials } from '../../../../../lib/auth/server';
+import { connect } from '../../../../../lib/database';
 import { validateRequestBody } from '../index';
-import { MongoClient } from 'mongodb';
 
 export default async function handler(req, res) {
 	let message; let client; let election;
@@ -9,9 +9,9 @@ export default async function handler(req, res) {
 	const { electionid } = req.query;
 
 	if (ALLOWED.includes(req.method)) {
-		try {
-			client = await MongoClient.connect(process.env.MONGODB);
-		} catch (error) {
+		client = await connect();
+
+		if (!client) {
 			message = 'Failed to connect to the database, try again later!';
 			res.status(500).send(message);
 			return;
@@ -22,14 +22,21 @@ export default async function handler(req, res) {
 		try {
 			election = await client.db()
 				.collection('elections')
-				.findOne({_id: electionid});
+				.findOne({_id: electionid}, {
+					projection: {
+						districts: 0,
+						candidates: 0,
+						partyLists: 0,
+						registrations: 0,
+						votes: 0
+					}});
 		} catch (error) {
 			message = 'Failed to fetch elections from the database, try again later!';
 			res.status(500).send(message);
 			await client.close();
 			return;
 		}
-		
+
 		if (!election) {
 			message = 'There is no election with the provided id!';
 			res.status(404).send(message);
@@ -41,7 +48,7 @@ export default async function handler(req, res) {
 		await client.close();
 		return;
 	}
-	
+
 	if (req.method === 'DELETE') {
 
 		if (!(await validateRequestCredentials({ req, res }))) {
@@ -98,7 +105,7 @@ export default async function handler(req, res) {
 		}
 
 		let election;
-		
+
 		try {
 			election = await client.db()
 				.collection('elections')
@@ -133,7 +140,7 @@ export default async function handler(req, res) {
 		await client.close();
 		return;
 	}
-	
+
 	message = 'Only GET, POST, PUT requests are allowed!';
 	res.status(405).send(message);
 }

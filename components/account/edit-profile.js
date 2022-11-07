@@ -1,17 +1,15 @@
 import { useContext, useState, useEffect } from 'react';
 import NotificationContext from '../../store/notification-context';
 import SessionContext from '../../store/session-context';
-import LoadingSpinner from '../layout/loading-spinner';
-import Pen from '../icons/pen';
-import IdentityCard from '../icons/identity-card';
-import Input from '../user-interface/input';
-import Control from '../user-interface/control';
+import { LoadingSpinner } from '../layout';
+import { Pen, IdentityCard } from '../icons';
+import { Control, Input } from '../user-interface';
 import ChangeEmailForm from './change-email-form';
 import PasswordChangeForm from './change-password-form';
 import md5 from 'md5';
 import styles from './edit-profile.module.css';
 
-export default function EditProfile({ 
+export default function EditProfile({
 	rsaKeyPair,
 	passwordHash,
 	setPasswordHash
@@ -38,7 +36,8 @@ export default function EditProfile({
 	const changeEmailHandler = async (email) => {
 		const headers = { 'Content-Type': 'application/json', Accept: 'application/json' };
 		const encryptedEmail = rsaKeyPair.encrypt(email);
-		const body = JSON.stringify({ email, encryptedEmail, passwordHash: passwordHash });
+		const emailHash = md5(user.email);
+		const body = JSON.stringify({ emailHash, email, encryptedEmail, passwordHash: passwordHash });
 		notificationCtx.set(
 			'pending',
 			'Pending',
@@ -63,7 +62,7 @@ export default function EditProfile({
 			'Success',
 			'The email was updated successfully!'
 		);
-		sessionCtx.update();
+		await sessionCtx.update();
 	};
 	const changePasswordHandler = async (newPassword) => {
 		const newPasswordHash = md5(newPassword);
@@ -76,8 +75,10 @@ export default function EditProfile({
 			return false;
 		}
 		const encryptedPrivateKeyPem = rsaKeyPair.getPrivateKeyPem(newPassword);
+		const emailHash = md5(user.email);
 		const headers = { 'Content-Type': 'application/json', Accept: 'application/json' };
 		const body = JSON.stringify({
+			emailHash,
 			currentPasswordHash: passwordHash,
 			newPasswordHash: newPasswordHash,
 			encryptedPrivateKeyPem: encryptedPrivateKeyPem
@@ -102,7 +103,7 @@ export default function EditProfile({
 			return false;
 		}
 		setPasswordHash(newPasswordHash);
-		sessionCtx.update();
+		await sessionCtx.update();
 		return true;
 	};
 	if (session === null || Object.keys(user).some(key => user[key] === null)) return <LoadingSpinner />;
@@ -110,19 +111,39 @@ export default function EditProfile({
 		<div className={styles.container}>
 			<Control>
 				<label>Identity number</label>
-				<Input icon={<IdentityCard />} value={user.identityNumber} readOnly disabled />
+				<Input
+					Icon={IdentityCard}
+					value={user.identityNumber}
+					readOnly
+					disabled
+				/>
 			</Control>
 			<Control>
 				<label>First name</label>
-				<Input icon={<Pen />} value={user.firstName} readOnly disabled />
+				<Input
+					Icon={Pen}
+					value={user.firstName}
+					readOnly
+					disabled
+				/>
 			</Control>
 			<Control>
 				<label>Last name</label>
-				<Input icon={<Pen />} value={user.lastName} readOnly disabled />
+				<Input
+					Icon={Pen}
+					value={user.lastName}
+					readOnly
+					disabled
+				/>
 			</Control>
 			<Helper />
-			<ChangeEmailForm initial={user.email} onChangeEmail={changeEmailHandler} />
-			<PasswordChangeForm onPasswordChange={changePasswordHandler} />
+			<ChangeEmailForm
+				initial={user.email}
+				onChangeEmail={changeEmailHandler}
+			/>
+			<PasswordChangeForm
+				onPasswordChange={changePasswordHandler}
+			/>
 		</div>
 	);
 }

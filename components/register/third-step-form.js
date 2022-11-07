@@ -1,5 +1,6 @@
-import Input from '../user-interface/input';
-import Key from '../icons/key';
+import React from 'react';
+import { Input, Label } from '../user-interface';
+import { Key } from '../icons';
 
 export default function ThirdStepForm({
 	passwordRef,
@@ -7,20 +8,26 @@ export default function ThirdStepForm({
 }) {
 	return (
 		<>
+			<Label
+				id='password'
+				title='Password'
+			/>
 			<Input
 				id='password'
-				label='Password'
-				innerRef={passwordRef}
-				icon={<Key />}
+				ref={passwordRef}
+				Icon={Key}
 				type='password'
 				placeholder='&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;'
 			/>
+			<Label
+				id='confirmPassword'
+				title='Confirm password'
+			/>
 			<Input
 				id='confirmPassword'
-				label='Confirm password'
-				innerRef={confirmPasswordRef}
+				ref={confirmPasswordRef}
 				type='password'
-				icon={<Key />}
+				Icon={Key}
 				placeholder='&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;'
 			/>
 		</>

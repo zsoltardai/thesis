@@ -4,6 +4,7 @@ import styles from './button.module.css';
 export default function Button({
 	href,
 	onClick = () => {},
+	title = '',
 	children,
 	style = {} }
 ) {
@@ -11,14 +12,14 @@ export default function Button({
 		return (
 			<Link href={href}>
 				<a style={style} className={styles.button}>
-					{children}
+					{title || children}
 				</a>
 			</Link>
 		);
 	}
 	return (
 		<button style={style} className={styles.button} onClick={onClick}>
-			{children}
+			{title || children}
 		</button>
 	);
 }

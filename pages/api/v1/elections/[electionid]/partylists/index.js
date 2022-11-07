@@ -1,6 +1,6 @@
 import { validateRequestCredentials } from '../../../../../../lib/auth/server';
+import { connect } from '../../../../../../lib/database';
 import { findElectionById } from '../index';
-import { MongoClient } from 'mongodb';
 import * as crypto from 'crypto';
 
 export default async function handler(req, res) {
@@ -10,9 +10,9 @@ export default async function handler(req, res) {
 	const { electionid } = req.query;
 
 	if (ALLOWED.includes(req.method)) {
-		try {
-			client = await MongoClient.connect(process.env.MONGODB);
-		} catch (error) {
+		client = await connect();
+
+		if (!client) {
 			message = 'Failed to connect to the database, try again later.';
 			res.status(500).send(message);
 			return;
@@ -68,7 +68,17 @@ export default async function handler(req, res) {
 			return;
 		}
 
-		const partyLists = [...election.partyLists, partyList];
+		if (election.partyLists.find(partyList => partyList.name === name)) {
+			message = 'There is already a party list with the same name!';
+			res.status(409).send(message);
+			await client.close();
+			return;
+		}
+
+		const partyLists = [
+			...election.partyLists,
+			partyList
+		];
 
 		try {
 			await client.db()
@@ -101,10 +111,17 @@ export function validateRequestBody({req, res}) {
 		return false;
 	}
 
-	if (!placeOnBallot || typeof placeOnBallot !== 'number') {
+	try {
+		if (!placeOnBallot) throw new Error();
+		req.body['placeOnBallot'] = parseInt(placeOnBallot);
+	} catch (error) {
 		message = 'You did not provide a valid place on ballot property!';
 		res.status(400).send(message);
 		return false;
+	}
+
+	if (!placeOnBallot || typeof parseInt(placeOnBallot) !== 'number') {
+
 	}
 
 	if (!(/^#[A-Za-z0-9]{6}$/).test(color)) {

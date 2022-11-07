@@ -1,7 +1,7 @@
 import { validateRequestCredentials } from '../../../../../../lib/auth/server';
+import { connect } from '../../../../../../lib/database';
 import { validateRequestBody } from './index';
 import { findElectionById } from '../index';
-import { MongoClient } from 'mongodb';
 
 export default async function handler(req, res) {
 	let client; let election; let message; let partyList;
@@ -9,9 +9,9 @@ export default async function handler(req, res) {
 	let ALLOWED = ['GET','PUT', 'DELETE'];
 
 	if (ALLOWED.includes(req.method)) {
-		try {
-			client = await MongoClient.connect(process.env.MONGODB);
-		} catch (error) {
+		client = await connect();
+
+		if (!client) {
 			message = 'Failed to connect to the database, try again later.';
 			res.status(500).send(message);
 			return;

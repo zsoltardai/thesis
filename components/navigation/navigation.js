@@ -34,13 +34,6 @@ export default function Navigation() {
 					<nav className={styles.nav}>
 						<ul className={styles.list}>
 							<li>
-								<Link href='/referendums'>
-									<a className={`${ path === '/referendums' ? styles.current : styles.link }`}>
-										Referendums
-									</a>
-								</Link>
-							</li>
-							<li>
 								<Link href='/elections'>
 									<a className={`${ path === '/elections' ? styles.current : styles.link }`}>
 										Elections
@@ -48,7 +41,7 @@ export default function Navigation() {
 								</Link>
 							</li>
 							{
-								(sessionContext.session) 
+								(sessionContext.session)
 									&&
 									(
 										<li>

@@ -1,5 +1,6 @@
-import Input from '../user-interface/input';
-import Mail from '../icons/mail';
+import React from 'react';
+import { Input, Label } from '../user-interface';
+import { Mail } from '../icons';
 
 export default function SecondStepForm({
 	emailRef,
@@ -7,19 +8,25 @@ export default function SecondStepForm({
 }) {
 	return (
 		<>
+			<Label
+				id='email'
+				title='E-mail'
+			/>
 			<Input
 				id='email'
-				label='E-mail'
-				innerRef={emailRef}
-				icon={<Mail />}
+				ref={emailRef}
+				Icon={Mail}
 				placeholder='e.g. example@email.com'
+			/>
+			<Label
+				id='postalCode'
+				title='Postal code'
 			/>
 			<Input
 				id='postalCode'
-				label='Postal code'
 				type='text'
-				innerRef={postalCodeRef}
-				icon={<Mail />}
+				ref={postalCodeRef}
+				Icon={Mail}
 				placeholder='e.g. 4300'
 			/>
 		</>

@@ -1,16 +1,16 @@
+import { validateRequestCredentials } from '../../../../../../lib/auth/server';
+import { updateElectionDistrict, validateRequestBody } from './index';
+import { connect } from '../../../../../../lib/database';
 import { findElectionById } from '../index';
-import { MongoClient } from 'mongodb';
-import {validateRequestCredentials} from '../../../../../../lib/auth/server';
-import {updateElectionDistrict, validateRequestBody} from './index';
 
 export default async function handler(req, res) {
 	let election; let message; let client;
 	const ALLOWED = ['GET', 'DELETE', 'PUT'];
 
 	if (ALLOWED.includes(req.method)) {
-		try {
-			client = await MongoClient.connect(process.env.MONGODB);
-		} catch (error) {
+		client = await connect();
+
+		if (!client) {
 			message = 'Failed to connect to the database, try again later.';
 			res.status(500).send(message);
 			return;
