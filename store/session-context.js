@@ -1,5 +1,6 @@
 import { createContext, useState, useEffect } from 'react';
 import { deleteCookie, getCookie } from 'cookies-next';
+import sessionApi from '../api/session';
 import md5 from 'md5';
 
 const SessionContext = createContext({
@@ -47,6 +48,7 @@ export function SessionContextProvider({children}) {
 
 	const updateHandler = async () => {
 		if (!getCookie('auth.token')) return null;
+		setLoading(true);
 		return new Promise(async (resolve, _) => {
 			const headers = { Accept: 'application/json' }; setLoading(true);
 			const response = await fetch('/api/v1/auth/session',

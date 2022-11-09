@@ -52,8 +52,8 @@ export default async function handler(req, res) {
 
 		const end = new Date(election.voting.end);
 
-		if (start < now < end) {
-			const past = end < now;
+		if (now < start || end < now) {
+			const past = end > now;
 			message = `The voting period ${past ? 'already has ended' : 'did not start yet'}!`;
 			res.status(400).send(message);
 			await client.close();

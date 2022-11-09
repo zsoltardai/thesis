@@ -75,17 +75,9 @@ export default async function handler(req, res) {
 			return;
 		}
 
-		const partyLists = [
-			...election.partyLists,
-			partyList
-		];
+		const partyLists = [...election.partyLists, partyList];
 
-		try {
-			await client.db()
-				.collection('elections')
-				.updateOne({...election},
-					{ $set: {partyLists} });
-		} catch (error) {
+		if (!await updatePartyLists(client, election, partyLists)) {
 			message = 'Failed to update party lists!';
 			res.status(500).send(message);
 			await client.close();
@@ -131,4 +123,12 @@ export function validateRequestBody({req, res}) {
 	}
 
 	return true;
+}
+
+const updatePartyLists = async (client, election, partyLists) => {
+	try {
+		await client.db().collection('elections')
+			.updateOne({...election}, { $set: {partyLists} });
+		return true;
+	} catch (error) { return false; }
 }

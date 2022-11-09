@@ -1,25 +1,41 @@
-import React, {useEffect, useState} from 'react';
-import {useSession} from './index';
+import { useEffect, useState } from 'react';
+import candidatesApi from '../api/candidates';
+import {useElection} from './index';
 
-export default function useCandidates(electionId) {
+export default function useCandidates({ electionid, postalcode }) {
 	const [candidates, setCandidates] = useState([]);
 	const [partyLists, setPartyLists] = useState([]);
 	const [loading, setLoading] = useState(true);
-	const { session } = useSession();
-	const getCandidates = async (postalCode) => {
-		const url = `/api/v1/elections/${electionId}/findmycandidates/${postalCode}`;
+	const [error, setError] = useState(null);
+
+	const getCandidates = async () => {
 		setLoading(true);
-		const response = await fetch(url);
-		const { candidates, partyLists } = await response.json();
-		setCandidates(candidates);
-		setPartyLists(partyLists);
+		const res = await candidatesApi.getCandidates({
+			electionid,
+			postalcode
+		});
+		if (res.ok) {
+			const { candidates, partyLists } = res.data;
+			setCandidates(candidates);
+			setPartyLists(partyLists);
+			setLoading(false);
+			return;
+		}
+		setError(res.data);
 		setLoading(false);
 	};
+
 	useEffect(() => {
-		if (session) {
-			const postalCode = session.user.postalCode;
-			getCandidates(postalCode);
+		if (electionid && postalcode) {
+			getCandidates();
 		}
-	}, [session]);
-	return { candidates, partyLists, loading, getCandidates };
+	}, [electionid, postalcode]);
+
+	return {
+		candidates,
+		partyLists,
+		error,
+		loading,
+		getCandidates
+	};
 }

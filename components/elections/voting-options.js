@@ -1,7 +1,7 @@
 import React from 'react';
 import { Checkbox } from '../user-interface';
 
-const VotingOptions = ({ items, chosen, setChosen }) => {
+const VotingOptions = ({ items, chosen, choose }) => {
 	return items && items.map((item, index) => {
 		if (item.name) {
 			const { name, _id } = item;
@@ -12,7 +12,7 @@ const VotingOptions = ({ items, chosen, setChosen }) => {
 					label={name}
 					checked={chosen}
 					group='partyLists'
-					setChecked={setChosen}
+					setChecked={choose}
 				/>
 			);
 		}
@@ -26,7 +26,7 @@ const VotingOptions = ({ items, chosen, setChosen }) => {
 					label={`${firstName} ${lastName}`}
 					checked={chosen}
 					group='candidates'
-					setChecked={setChosen}
+					setChecked={choose}
 				/>
 			);
 		}

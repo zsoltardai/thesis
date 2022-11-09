@@ -91,7 +91,7 @@ const validateRequestBody = ({ req, res }) => {
 	let message;
 	const { publicKey } = req.body;
 
-	if (!publicKey || publicKey.length !== 460 || !publicKey.includes('-----BEGIN PUBLIC KEY-----')
+	if (!publicKey || !publicKey.includes('-----BEGIN PUBLIC KEY-----')
 		|| !publicKey.includes('-----END PUBLIC KEY-----')) {
 		message = 'The provided public key was invalid!';
 		res.status(400).send(message);

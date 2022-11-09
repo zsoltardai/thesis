@@ -53,8 +53,9 @@ export default async function handler(req, res) {
 		const partyLists = election.partyLists;
 
 		res.status(200).json({
+			district: districtId,
 			candidates,
-			partyLists
+			partyLists,
 		});
 		await client.close();
 		return;

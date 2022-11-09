@@ -1,30 +1,35 @@
 import Link from 'next/link';
 import styles from './election-preview.module.css';
+import {useEffect, useState} from 'react';
 
 export default function ElectionPreview({election}) {
+	const [status, setStatus] = useState(null);
 	const getElectionStatus = () => {
-		let status = 'Upcoming';
 		const { voting, registration } = election;
 		let { start, end } = registration;
-		console.log(start, end);
 		const current = new Date();
 		if (new Date(start) < current) {
-			status = 'Registration ongoing';
 			if (new Date(end) < current) {
-				status = 'Registration ended';
 				let { start, end } = voting;
-				console.log(start, end);
 				if (new Date(start) < current) {
-					status = 'Voting ongoing';
 					if (new Date(end) < current) {
-						status = 'Ended';
+						setStatus('Ended');
+						return;
 					}
+					setStatus('Voting ongoing');
+					return;
 				}
+				setStatus('Registration ended');
+				return;
 			}
+			setStatus('Registration ongoing');
+			return;
 		}
-		return status;
+		setStatus('Upcoming');
 	};
-	const status = getElectionStatus();
+	useEffect(() => {
+		getElectionStatus();
+	}, []);
 	return (
 		<Link href={`/elections/${election._id}`}>
 			<div className={styles.container}>

@@ -1,7 +1,10 @@
-import React, { useContext } from 'react';
-import SessionContext from '../store/session-context';
+import { useContext } from 'react';
+import { default as Session } from '../store/session-context';
 
 export default function useSession() {
-	const sessionCtx = useContext(SessionContext);
-	return { session: sessionCtx.session, loading: sessionCtx.loading };
+	const ctx = useContext(Session);
+	return {
+		session: ctx.session,
+		loading: ctx.loading
+	};
 }
