@@ -1,11 +1,11 @@
-import React, {useState, forwardRef, useRef, createRef} from 'react';
+import React, {useState, forwardRef, createRef} from 'react';
 import Visible from '../icons/visible';
 import Invisible from '../icons/invisible';
 import styles from './input.module.css';
 
 const Input = ({ type = 'text', Icon = null, ...props}, ref) => {
 	const [visible, setVisible] = useState(false);
-	const inputRef = ref || createRef(null);
+	const inputRef = ref || createRef();
 	const [focused, setFocused] = useState(false);
 	const toggleVisibility = () => setVisible(!visible);
 	return (

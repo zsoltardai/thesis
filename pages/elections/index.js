@@ -1,7 +1,6 @@
 import { ElectionPreview as Preview }from '../../components/elections';
 import { LoadingSpinner as Spinner } from '../../components/layout';
 import { useElections, useNotification } from '../../hooks';
-import { Button } from '../../components/user-interface';
 import styles from '../../styles/elections.module.css';
 
 export default function Elections() {
@@ -28,10 +27,11 @@ export default function Elections() {
 					election={election}
 				/>)
 			)}
-			<Button
-				title="Refresh"
-				onClick={() => getElections()}
-			/>
 		</div>
 	);
 }
+
+/*<Button
+	title="Refresh"
+	onClick={() => getElections()}
+/>*/

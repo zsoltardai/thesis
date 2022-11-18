@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
 import candidatesApi from '../api/candidates';
-import {useElection} from './index';
 
 export default function useCandidates({ electionid, postalcode }) {
 	const [candidates, setCandidates] = useState([]);
 	const [partyLists, setPartyLists] = useState([]);
+	const [districtId, setDistrictId] = useState(null);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState(null);
 
@@ -15,9 +15,10 @@ export default function useCandidates({ electionid, postalcode }) {
 			postalcode
 		});
 		if (res.ok) {
-			const { candidates, partyLists } = res.data;
+			const { candidates, partyLists, districtId } = res.data;
 			setCandidates(candidates);
 			setPartyLists(partyLists);
+			setDistrictId(districtId);
 			setLoading(false);
 			return;
 		}
@@ -34,6 +35,7 @@ export default function useCandidates({ electionid, postalcode }) {
 	return {
 		candidates,
 		partyLists,
+		districtId,
 		error,
 		loading,
 		getCandidates

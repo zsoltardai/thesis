@@ -36,7 +36,7 @@ const Election = () => {
 	const { election, loading: loadingElection } = useElection(slug);
 	const { session, loading: loadingSession } = useSession();
 	const { setNotification } = useNotification();
-	const { candidates, partyLists, loading: loadingCandidates } =
+	const { candidates, partyLists, districtId, loading: loadingCandidates } =
 			useCandidates({electionid: election?._id, postalcode});
 	const passwordRef = useRef();
 	const [rsaKeyPair, setRsaKeyPair] = useState(null);
@@ -136,6 +136,7 @@ const Election = () => {
 						title='Vote'
 						onClick={async () => {
 							const vote = {
+								districtId,
 								candidateId: chosenCandidate,
 								partyListId: chosenPartyList,
 							};

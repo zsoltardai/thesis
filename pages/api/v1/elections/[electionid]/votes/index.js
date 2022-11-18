@@ -6,18 +6,38 @@ import md5 from 'md5';
 
 export default async function handler(req, res) {
 	let client; let message; let election;
+	const ALLOWED = ['POST', 'GET'];
 
-	if (req.method === 'POST') {
+	const { electionid } = req.query;
 
-		const { electionid } = req.query;
-
+	if (ALLOWED.includes(req.method)) {
 		client = await connect();
 
 		if (!client) {
 			message = 'Failed to connect to the database, try again later.';
-			res.status(500).send(message);
+			req.status(500).send(message);
 			return;
 		}
+	}
+
+	if (req.method === 'GET') {
+
+		election = await findElectionById(client, electionid);
+
+		if (!election) {
+			message = 'There is no election with the provided id!';
+			res.status(404).send(message);
+			await client.close();
+			return;
+		}
+
+		const { votes } = election;
+
+		res.status(200).json(votes);
+		return;
+	}
+
+	if (req.method === 'POST') {
 
 		const session = await verifyToken({req, res})
 
@@ -104,6 +124,7 @@ export default async function handler(req, res) {
 		}
 
 		if (!RSA.verify(publicKey, JSON.stringify({
+			districtId,
 			candidateId,
 			partyListId
 		}), signature)) {
@@ -128,6 +149,7 @@ export default async function handler(req, res) {
 			_id: previous._id + 1,
 			previous: md5(JSON.stringify(previous)),
 			vote: {
+				districtId,
 				candidateId,
 				partyListId,
 			},

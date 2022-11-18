@@ -13,19 +13,19 @@ export default function ElectionPreview({election}) {
 				let { start, end } = voting;
 				if (new Date(start) < current) {
 					if (new Date(end) < current) {
-						setStatus('Ended');
+						setStatus('voting ended');
 						return;
 					}
-					setStatus('Voting ongoing');
+					setStatus('voting ongoing');
 					return;
 				}
-				setStatus('Registration ended');
+				setStatus('registration ended');
 				return;
 			}
-			setStatus('Registration ongoing');
+			setStatus('registration ongoing');
 			return;
 		}
-		setStatus('Upcoming');
+		setStatus('upcoming');
 	};
 	useEffect(() => {
 		getElectionStatus();
@@ -34,7 +34,13 @@ export default function ElectionPreview({election}) {
 		<Link href={`/elections/${election._id}`}>
 			<div className={styles.container}>
 				<p className={styles.title}>{election.name}</p>
-				<span className={styles.banner}>{status}</span>
+				<span className={`
+					${styles.banner}
+					${status === 'voting ongoing' && styles.ongoing}
+					${status === 'registration ongoing' && styles.registration}
+				`}>
+					{status}
+				</span>
 			</div>
 		</Link>
 	);

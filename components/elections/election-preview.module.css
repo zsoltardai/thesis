@@ -16,17 +16,19 @@
 .title {
     letter-spacing: 0.2rem;
     font-weight: 600;
+    max-width: 60%;
 }
 
 .banner {
     font-size: 11pt;
-    max-height: 2rem;
     padding: 0.25rem 0.5rem;
     border-radius: 5px;
     font-weight: 800;
     color: var(--color-white);
     background-color: var(--color-primary);
     box-shadow: var(--box-shadow);
+    text-align: center;
+    text-transform: uppercase;
 }
 
 .ongoing {
